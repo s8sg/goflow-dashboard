@@ -2,7 +2,7 @@ package main
 
 // Flow object to retrieve and response flows details
 type Flow struct {
-	Name            string            `json:"name"`
+	Name string `json:"name"`
 }
 
 type DashboardSpec struct {
@@ -18,8 +18,8 @@ type Location struct {
 }
 
 type FlowDesc struct {
-	Name            string            `json:"name"`
-	Dot             string            `json:"dot,omitempty"`
+	Name            string `json:"name"`
+	Dot             string `json:"dot,omitempty"`
 	InvocationCount int
 }
 

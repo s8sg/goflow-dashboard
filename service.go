@@ -36,7 +36,7 @@ func listGoFLows() ([]*Flow, error) {
 // getDot request to dot-generator for the dag dot graph
 func getDot(flowName string) (string, error) {
 	rdb = getRDB()
-	command := rdb.Get("goflow-flow:"+flowName)
+	command := rdb.Get("goflow-flow:" + flowName)
 	rdb.Process(command)
 	definition, err := command.Result()
 	if err != nil {
@@ -67,30 +67,30 @@ func buildFlowDesc(functions []*Flow, flowName string) (*FlowDesc, error) {
 	}
 
 	flowDesc := &FlowDesc{
-		Name:            functionObj.Name,
-		Dot:             dot,
+		Name: functionObj.Name,
+		Dot:  dot,
 	}
 
 	return flowDesc, nil
 }
 
 // listRequestTraces get list of traces for a request traceID
-func listRequestTraces(requestId string,  requestTraceId string) (*RequestTrace, error) {
+func listRequestTraces(requestId string, requestTraceId string) (*RequestTrace, error) {
 	requestTraceResponse, err := lib.ListTraces(requestTraceId)
-	if err == nil {
+	if err != nil {
 		return nil, err
 	}
 	requestTrace := &RequestTrace{
-		RequestID: requestId,
-		TraceId: requestTraceId,
-		StartTime: requestTraceResponse.StartTime,
+		RequestID:  requestId,
+		TraceId:    requestTraceId,
+		StartTime:  requestTraceResponse.StartTime,
 		NodeTraces: make(map[string]*NodeTrace, 0),
-		Duration: requestTraceResponse.Duration,
+		Duration:   requestTraceResponse.Duration,
 	}
 	for id, nodeTrace := range requestTraceResponse.NodeTraces {
 		nodeTraceObj := &NodeTrace{
 			StartTime: nodeTrace.StartTime,
-			Duration: nodeTrace.Duration,
+			Duration:  nodeTrace.Duration,
 		}
 		requestTrace.NodeTraces[id] = nodeTraceObj
 	}
@@ -104,7 +104,7 @@ func getRequestStatus(flow, requestTraceId string) (string, error) {
 	return "", nil
 }
 
-func getRDB() *redis.Client{
+func getRDB() *redis.Client {
 	addr := os.Getenv("redis_url")
 	if addr == "" {
 		addr = "localhost:6379"

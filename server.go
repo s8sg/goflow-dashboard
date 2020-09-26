@@ -16,16 +16,13 @@ const (
 )
 
 var (
-	publicUri                    = ""
-	gen        *pageGen.Template = nil
+	publicUri                   = ""
+	gen       *pageGen.Template = nil
 )
 
 // initialize globals
 func initialize() error {
 	publicUri = os.Getenv("public_uri")
-	if len(publicUri) == 0 {
-		publicUri = "/"
-	}
 	gen = pageGen.Must(pageGen.ParseGlob("views/*.html"))
 	return nil
 }

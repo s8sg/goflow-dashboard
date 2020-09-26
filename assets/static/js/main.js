@@ -17,7 +17,7 @@ function getServer() {
     } else {
         let protocol = location.protocol;
         let slashes = protocol.concat("//");
-        server = slashes.concat(window.location.hostname);
+        server = slashes.concat(window.location.host);
     }
     return server;
 };
@@ -59,7 +59,7 @@ function triggerAlert(alertText, bsStyle) {
 // Load the trace content async and periodic manner
 function loadTraceContent(flowName, reqId, traceId) {
     let url = getServer();
-    url = url.concat("/function/faas-flow-dashboard/api/flow/request/traces");
+    url = url.concat("/api/flow/request/traces");
 
     let reqData = {};
     reqData["function"] = flowName;
@@ -100,7 +100,7 @@ function executeFlow(flowName) {
                 document.getElementById("response.id").value = requestId;
                 document.getElementById("response.monitor").style.visibility = "visible";
                 document.getElementById("response.monitor").href =
-                    getServer().concat("/function/faas-flow-dashboard/flow/request/monitor?flow-name="
+                    getServer().concat("/flow/request/monitor?flow-name="
                         + flowName + "&request=" + requestId);
             } else {
                 document.getElementById("response.monitor").style.visibility = "hidden";
@@ -206,7 +206,7 @@ function deleteFlow(flowName) {
     $('#deleteModal').modal('hide');
 
     let url = getServer();
-    url = url.concat("/function/faas-flow-dashboard/api/flow/delete");
+    url = url.concat("/api/flow/delete");
 
     let reqData = {};
     reqData["function"] = flowName;

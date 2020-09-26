@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 )
 
 // Objects to retrieve specific trace details
@@ -60,7 +61,7 @@ type RequestTrace struct {
 }
 
 var (
-	trace_url = ""
+	trace_url = os.Getenv("TRACE_URL")
 )
 
 func ListRequests(function string) (map[string]string, error) {
@@ -160,11 +161,11 @@ func ListTraces(request string) (*RequestTrace, error) {
 			if found {
 				nodeStartTime := node.StartTime
 				nodeDuration := node.Duration
-				nodeEndtime := nodeStartTime + nodeDuration
+				nodeEndTime := nodeStartTime + nodeDuration
 				if span.StartTime < nodeStartTime {
 					nodeStartTime = span.StartTime
 				}
-				if spanEndTime > nodeEndtime {
+				if spanEndTime > nodeEndTime {
 					nodeDuration = spanEndTime - nodeStartTime
 				}
 				node.StartTime = nodeStartTime
