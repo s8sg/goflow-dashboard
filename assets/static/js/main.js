@@ -86,15 +86,18 @@ function loadTraceContent(flowName, reqId, traceId) {
 // execute the flow function
 function executeFlow(flowName) {
     let url = getServer();
-    url = url.concat("/function/" + flowName);
+    url = url.concat("/api/flow/request/execute");
 
-    let data = document.getElementById("request.body").value;
+    let reqData = {};
+    reqData["function"] = flowName;
+    reqData["data"] = document.getElementById("request.body").value;
+    let data = JSON.stringify(reqData);
     let contentType = document.querySelector('input[name="request.content_type"]:checked').value;
 
     let xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function () {
         if (this.readyState == 4) {
-            let requestId = this.getResponseHeader('X-Faas-Flow-Reqid');
+            let requestId = this.responseText;
             document.getElementById("response.status").value = "" + this.status;
             if (requestId != null) {
                 document.getElementById("response.id").value = requestId;
@@ -105,8 +108,6 @@ function executeFlow(flowName) {
             } else {
                 document.getElementById("response.monitor").style.visibility = "hidden";
             }
-
-            document.getElementById("response.body").value = this.responseText;
         }
     };
     xmlHttp.open("POST", url, true);

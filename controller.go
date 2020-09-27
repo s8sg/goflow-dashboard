@@ -29,6 +29,7 @@ type Message struct {
 	FlowName  string `json:"function"`
 	RequestID string `json:"request-id"`
 	TraceID   string `json:"trace-id"`
+	Data      string `json:"data"`
 }
 
 // dashboardPageHandler handle dashboard view
@@ -150,7 +151,7 @@ func flowRequestsPageHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		requestState, err := getRequestStatus(flowName, request)
+		requestState, err := getRequestState(flowName, request)
 		if err != nil {
 			log.Printf("failed to get request state for %s, request %s, error: %v",
 				flowName, request, err)
@@ -228,7 +229,7 @@ func flowRequestMonitorPageHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		requestState, err := getRequestStatus(flowName, request)
+		requestState, err := getRequestState(flowName, request)
 		if err != nil {
 			log.Printf("failed to get request state for %s, request %s, error: %v",
 				flowName, request, err)
@@ -386,7 +387,7 @@ func requestTracesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	state, err := getRequestStatus(flowName, requestId)
+	state, err := getRequestState(flowName, requestId)
 	if err != nil {
 		log.Printf("failed to get request state for %s, request %s, error: %v",
 			flowName, requestId, err)
@@ -397,4 +398,45 @@ func requestTracesHandler(w http.ResponseWriter, r *http.Request) {
 	data, _ := json.MarshalIndent(trace, "", "    ")
 	w.Write(data)
 	return
+}
+
+// executeRequestHandler request handler for traces of a request
+func executeRequestHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Body == nil {
+		http.Error(w, "invalid request, no content", 500)
+		return
+	}
+
+	var msg Message
+	err := json.NewDecoder(r.Body).Decode(&msg)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	flowName := msg.FlowName
+	data := msg.Data
+
+	requestId, err := executeFlow(flowName, []byte(data))
+	if err != nil {
+		log.Printf("failed to execute %s, error: %v",
+			flowName, err)
+		http.Error(w, fmt.Sprintf("failed to execute %s, error: %v", flowName, err),
+			http.StatusInternalServerError)
+	}
+
+	w.Write([]byte(requestId))
+	return
+}
+
+// pauseRequestHandler request handler for traces of a request
+func pauseRequestHandler(w http.ResponseWriter, r *http.Request) {
+}
+
+// resumeRequestHandler request handler for traces of a request
+func resumeRequestHandler(w http.ResponseWriter, r *http.Request) {
+}
+
+// stopRequestHandler request handler for traces of a request
+func stopRequestHandler(w http.ResponseWriter, r *http.Request) {
 }

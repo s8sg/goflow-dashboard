@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/gorilla/mux"
 	pageGen "html/template"
 	"log"
 	"net/http"
@@ -62,20 +63,28 @@ func main() {
 		MaxHeaderBytes: 1 << 20, // Max header of 1MB
 	}
 
+	r := mux.NewRouter()
+
 	// Template
-	http.HandleFunc("/", dashboardPageHandler)
-	http.HandleFunc("/flow/info", flowInfoPageHandler)
-	http.HandleFunc("/flow/requests", flowRequestsPageHandler)
-	http.HandleFunc("/flow/request/monitor", flowRequestMonitorPageHandler)
+	r.HandleFunc("/", dashboardPageHandler)
+	r.HandleFunc("/flow/info", flowInfoPageHandler)
+	r.HandleFunc("/flow/requests", flowRequestsPageHandler)
+	r.HandleFunc("/flow/request/monitor", flowRequestMonitorPageHandler)
+
+	// API request
+	r.HandleFunc("/api/flow/list", listFlowsHandler)
+	r.HandleFunc("/api/flow/info", flowDescHandler)
+	r.HandleFunc("/api/flow/requests", listFlowRequestsHandler)
+	r.HandleFunc("/api/flow/request/traces", requestTracesHandler)
+	r.HandleFunc("/api/flow/request/execute", executeRequestHandler)
+	r.HandleFunc("/api/flow/request/pause", pauseRequestHandler)
+	r.HandleFunc("/api/flow/request/resume", resumeRequestHandler)
+	r.HandleFunc("/api/flow/request/stop", stopRequestHandler)
 
 	// Static content
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./assets/static/"))))
 
-	// API request
-	http.HandleFunc("/api/flow/list", listFlowsHandler)
-	http.HandleFunc("/api/flow/info", flowDescHandler)
-	http.HandleFunc("/api/flow/requests", listFlowRequestsHandler)
-	http.HandleFunc("/api/flow/request/traces", requestTracesHandler)
+	http.Handle("/", r)
 
 	log.Fatal(s.ListenAndServe())
 }

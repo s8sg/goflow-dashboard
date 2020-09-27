@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/rs/xid"
+	"github.com/s8sg/goflow"
 	"github.com/s8sg/goflow-dashboard/lib"
 	redis "gopkg.in/redis.v5"
 	"os"
@@ -98,17 +100,33 @@ func listRequestTraces(requestId string, requestTraceId string) (*RequestTrace, 
 	return requestTrace, nil
 }
 
-// getRequestStatus request the flow for the request status
-func getRequestStatus(flow, requestTraceId string) (string, error) {
+// getRequestState request the flow for the request status
+func getRequestState(flow, requestId string) (string, error) {
 	rdb = getRDB()
 	return "", nil
 }
 
-func getRDB() *redis.Client {
-	addr := os.Getenv("redis_url")
-	if addr == "" {
-		addr = "localhost:6379"
+// executeFlow execute a flow
+func executeFlow(flow string, data []byte) (string, error) {
+	fs := &goflow.FlowService{
+		RedisURL: getRedisAddr(),
 	}
+	requestId := getNewId()
+	request := &goflow.Request{
+		Body:      data,
+		RequestId: requestId,
+	}
+
+	err := fs.Execute(flow, request)
+	if err != nil {
+		return "", err
+	}
+
+	return requestId, nil
+}
+
+func getRDB() *redis.Client {
+	addr := getRedisAddr()
 	if rdb == nil {
 		rdb = redis.NewClient(&redis.Options{
 			Addr: addr,
@@ -116,4 +134,17 @@ func getRDB() *redis.Client {
 		})
 	}
 	return rdb
+}
+
+func getRedisAddr() string {
+	addr := os.Getenv("REDIS_URL")
+	if addr == "" {
+		addr = "localhost:6379"
+	}
+	return addr
+}
+
+func getNewId() string {
+	guid := xid.New()
+	return guid.String()
 }

@@ -61,11 +61,11 @@ type RequestTrace struct {
 }
 
 var (
-	trace_url = os.Getenv("TRACE_URL")
+	trace_url = "http://localhost:16686/"
 )
 
 func ListRequests(function string) (map[string]string, error) {
-	resp, err := http.Get(trace_url + "api/traces?service=" + function)
+	resp, err := http.Get(getTraceUrl() + "api/traces?service=" + function)
 	if err != nil {
 		return nil, fmt.Errorf("failed to request trace service, error %v ", err)
 	}
@@ -106,7 +106,7 @@ func ListRequests(function string) (map[string]string, error) {
 }
 
 func ListTraces(request string) (*RequestTrace, error) {
-	resp, err := http.Get(trace_url + "api/traces/" + request)
+	resp, err := http.Get(getTraceUrl() + "api/traces/" + request)
 	if err != nil {
 		return nil, fmt.Errorf("failed to request trace service, error %v ", err)
 	}
@@ -183,4 +183,12 @@ func ListTraces(request string) (*RequestTrace, error) {
 	}
 
 	return requestTraces, nil
+}
+
+func getTraceUrl() string {
+	url := os.Getenv("TRACE_URL")
+	if url != "" {
+		trace_url = url
+	}
+	return trace_url
 }
