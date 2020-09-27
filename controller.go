@@ -106,7 +106,7 @@ func flowInfoPageHandler(w http.ResponseWriter, r *http.Request) {
 
 		CurrentLocation: &Location{
 			Name: "Flow : " + flowName + "",
-			Link: "/function/faas-flow-dashboard/flow/info?flow-name=" + flowName,
+			Link: "/flow/info?flow-name=" + flowName,
 		},
 
 		InnerHtml: "flow-info",
@@ -171,7 +171,7 @@ func flowRequestsPageHandler(w http.ResponseWriter, r *http.Request) {
 	locationDepths := []*Location{
 		&Location{
 			Name: "Flow : " + flowName + "",
-			Link: "/function/faas-flow-dashboard/flow/info?flow-name=" + flowName,
+			Link: "/flow/info?flow-name=" + flowName,
 		},
 	}
 
@@ -183,7 +183,7 @@ func flowRequestsPageHandler(w http.ResponseWriter, r *http.Request) {
 
 		CurrentLocation: &Location{
 			Name: "Requests",
-			Link: "/function/faas-flow-dashboard/flow/requests?flow-name=" + flowName,
+			Link: "/flow/requests?flow-name=" + flowName,
 		},
 
 		Requests: flowRequests,
@@ -253,11 +253,11 @@ func flowRequestMonitorPageHandler(w http.ResponseWriter, r *http.Request) {
 	locationDepths := []*Location{
 		&Location{
 			Name: "Flow : " + flowName + "",
-			Link: "/function/faas-flow-dashboard/flow/info?flow-name=" + flowName,
+			Link: "/flow/info?flow-name=" + flowName,
 		},
 		&Location{
 			Name: "Requests",
-			Link: "/function/faas-flow-dashboard/flow/requests?flow-name=" + flowName,
+			Link: "/flow/requests?flow-name=" + flowName,
 		},
 	}
 
@@ -431,12 +431,87 @@ func executeRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 // pauseRequestHandler request handler for traces of a request
 func pauseRequestHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Body == nil {
+		http.Error(w, "invalid request, no content", 500)
+		return
+	}
+
+	var msg Message
+	err := json.NewDecoder(r.Body).Decode(&msg)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	flowName := msg.FlowName
+	requestID := msg.RequestID
+
+	err = pauseRequest(flowName, requestID)
+	if err != nil {
+		log.Printf("failed to pause request %s for %s, error: %v",
+			requestID, flowName, err)
+		http.Error(w, fmt.Sprintf("failed to pause request %s for %s, error: %v",
+			requestID, flowName, err), http.StatusInternalServerError)
+	}
+
+	w.Write([]byte(""))
+	return
 }
 
 // resumeRequestHandler request handler for traces of a request
 func resumeRequestHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Body == nil {
+		http.Error(w, "invalid request, no content", 500)
+		return
+	}
+
+	var msg Message
+	err := json.NewDecoder(r.Body).Decode(&msg)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	flowName := msg.FlowName
+	requestID := msg.RequestID
+
+	err = resumeRequest(flowName, requestID)
+	if err != nil {
+		log.Printf("failed to resume request %s for %s, error: %v",
+			requestID, flowName, err)
+		http.Error(w, fmt.Sprintf("failed to resume request %s for %s, error: %v",
+			requestID, flowName, err), http.StatusInternalServerError)
+	}
+
+	w.Write([]byte(""))
+	return
 }
 
 // stopRequestHandler request handler for traces of a request
 func stopRequestHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Body == nil {
+		http.Error(w, "invalid request, no content", 500)
+		return
+	}
+
+	var msg Message
+	err := json.NewDecoder(r.Body).Decode(&msg)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	flowName := msg.FlowName
+	requestID := msg.RequestID
+
+	err = stopRequest(flowName, requestID)
+	if err != nil {
+		log.Printf("failed to stop request %s for %s, error: %v",
+			requestID, flowName, err)
+		http.Error(w, fmt.Sprintf("failed to stop request %s for %s, error: %v",
+			requestID, flowName, err), http.StatusInternalServerError)
+	}
+
+	w.Write([]byte(""))
+	return
 }

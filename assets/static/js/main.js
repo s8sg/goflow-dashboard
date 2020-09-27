@@ -118,7 +118,14 @@ function executeFlow(flowName) {
 // stop the request
 function stopRequest(flowName, request) {
     let url = getServer();
-    url = url.concat("/function/" + flowName + "?stop-flow=" + request);
+    url = url.concat("/api/flow/request/stop");
+
+    let reqData = {};
+    reqData["function"] = flowName;
+    reqData["request-id"] = request;
+
+    let data = JSON.stringify(reqData);
+    let contentType = "application/json";
 
     let html = document.getElementById("exec-status").innerHTML;
     if (!(html.includes("RUNNING") || html.includes("PAUSED"))) {
@@ -138,20 +145,26 @@ function stopRequest(flowName, request) {
         }
     };
 
-    xmlHttp.open("GET", url, true);
-    xmlHttp.setRequestHeader('accept', "application/json");
-    xmlHttp.setRequestHeader("Content-Type", "application/json");
-    xmlHttp.send();
+    xmlHttp.open("POST", url, true);
+    xmlHttp.setRequestHeader("Content-Type", contentType);
+    xmlHttp.send(data);
 };
 
 // pause the request
 function pauseRequest(flowName, request) {
     let url = getServer();
-    url = url.concat("/function/" + flowName + "?pause-flow=" + request);
+    url = url.concat("/api/flow/request/pause");
+
+    let reqData = {};
+    reqData["function"] = flowName;
+    reqData["request-id"] = request;
+
+    let data = JSON.stringify(reqData);
+    let contentType = "application/json";
 
     let html = document.getElementById("exec-status").innerHTML;
-    if (!html.includes("RUNNING")) {
-        triggerAlert("Can't pause request: <b>" + request + "</b>, must be <b>RUNNING</b>", 'info');
+    if (!(html.includes("RUNNING"))) {
+        triggerAlert("Can't stop request: <b>" + request + "</b>, must be in <b>RUNNING</b> states", 'info');
         return;
     }
 
@@ -167,16 +180,22 @@ function pauseRequest(flowName, request) {
         }
     };
 
-    xmlHttp.open("GET", url, true);
-    xmlHttp.setRequestHeader('accept', "application/json");
-    xmlHttp.setRequestHeader("Content-Type", "application/json");
-    xmlHttp.send();
+    xmlHttp.open("POST", url, true);
+    xmlHttp.setRequestHeader("Content-Type", contentType);
+    xmlHttp.send(data);
 };
 
-// pause the request
+// resume the request
 function resumeRequest(flowName, request) {
     let url = getServer();
-    url = url.concat("/function/" + flowName + "?resume-flow=" + request);
+    url = url.concat("/api/flow/request/resume");
+
+    let reqData = {};
+    reqData["function"] = flowName;
+    reqData["request-id"] = request;
+
+    let data = JSON.stringify(reqData);
+    let contentType = "application/json";
 
     let html = document.getElementById("exec-status").innerHTML;
     if (!html.includes("PAUSED")) {
@@ -196,22 +215,25 @@ function resumeRequest(flowName, request) {
         }
     };
 
-    xmlHttp.open("GET", url, true);
-    xmlHttp.setRequestHeader('accept', "application/json");
-    xmlHttp.setRequestHeader("Content-Type", "application/json");
-    xmlHttp.send();
+    xmlHttp.open("POST", url, true);
+    xmlHttp.setRequestHeader("Content-Type", contentType);
+    xmlHttp.send(data);
 };
 
+
+/*
 // delete the flow function
 function deleteFlow(flowName) {
     $('#deleteModal').modal('hide');
 
     let url = getServer();
-    url = url.concat("/api/flow/delete");
+    url = url.concat("/function/" + flowName + "?resume-flow=" + request);
 
-    let reqData = {};
-    reqData["function"] = flowName;
-    let data = JSON.stringify(reqData);
+    let html = document.getElementById("exec-status").innerHTML;
+    if (!html.includes("PAUSED")) {
+        triggerAlert("Can't resume request: <b>" + request +"</b>, must be <b>PAUSED</b>", 'info');
+        return;
+    }
 
     let xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function () {
@@ -224,11 +246,12 @@ function deleteFlow(flowName) {
             return;
         }
     };
+
     xmlHttp.open("POST", url, true);
-    xmlHttp.setRequestHeader('accept', "application/json");
-    xmlHttp.setRequestHeader("Content-Type", "application/json");
+    xmlHttp.setRequestHeader("Content-Type", contentType);
     xmlHttp.send(data);
 };
+*/
 
 // format function duration in sec
 function formatDuration(micros) {

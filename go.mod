@@ -8,6 +8,6 @@ require (
 	github.com/onsi/gomega v1.10.2 // indirect; indirectxw
 	github.com/rs/xid v1.2.1
 	github.com/s8sg/faas-flow v0.6.2
-	github.com/s8sg/goflow v0.0.9-0.20200926134914-e5f7a085c083
+	github.com/s8sg/goflow v0.0.9-0.20200927104759-0563d6d6dc7a
 	gopkg.in/redis.v5 v5.2.9
 )

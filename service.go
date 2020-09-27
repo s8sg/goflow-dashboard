@@ -125,6 +125,48 @@ func executeFlow(flow string, data []byte) (string, error) {
 	return requestId, nil
 }
 
+// pauseRequest pause a request
+func pauseRequest(flow string, requestID string) error {
+	fs := &goflow.FlowService{
+		RedisURL: getRedisAddr(),
+	}
+
+	err := fs.Pause(flow, requestID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// resumeRequest resumes a request
+func resumeRequest(flow string, requestID string) error {
+	fs := &goflow.FlowService{
+		RedisURL: getRedisAddr(),
+	}
+
+	err := fs.Resume(flow, requestID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// stopRequest stops a request
+func stopRequest(flow string, requestID string) error {
+	fs := &goflow.FlowService{
+		RedisURL: getRedisAddr(),
+	}
+
+	err := fs.Stop(flow, requestID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func getRDB() *redis.Client {
 	addr := getRedisAddr()
 	if rdb == nil {
